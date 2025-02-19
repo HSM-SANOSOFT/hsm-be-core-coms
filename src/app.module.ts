@@ -3,10 +3,11 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import * as path from 'path';
 
+import { envs } from '../config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { envs } from '../config';
 import { DatabaseModule } from './database/database.module';
+import { Helpers } from './utils/helpers';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, Helpers],
+  exports: [Helpers],
 })
-export class AppModule {}
+export class AppModule { }

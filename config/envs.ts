@@ -26,6 +26,10 @@ interface EnvVars {
   MAIL_USER: string;
   MAIL_PASSWORD: string;
   MAIL_FROM: string;
+
+  MASIVA_URL: string;
+  MASIVA_CLIENT_ID: string;
+  MASIVA_CLIENT_SECRET: string;
 }
 
 const envsSchema = joi
@@ -44,6 +48,10 @@ const envsSchema = joi
     MAIL_USER: joi.string().email().required(),
     MAIL_PASSWORD: joi.string().required(),
     MAIL_FROM: joi.string().email().required(),
+
+    MASIVA_URL: joi.string().required(),
+    MASIVA_CLIENT_ID: joi.string().required(),
+    MASIVA_CLIENT_SECRET: joi.string().required(),
   })
   .unknown()
   .required();
@@ -71,4 +79,8 @@ export const envs = {
   MAIL_USER: envVars.MAIL_USER,
   MAIL_PASSWORD: envVars.MAIL_PASSWORD,
   MAIL_FROM: envVars.MAIL_FROM,
+
+  MASIVA_URL: envVars.MASIVA_URL,
+  MASIVA_CLIENT_ID: envVars.MASIVA_CLIENT_ID,
+  MASIVA_CLIENT_SECRET: envVars.MASIVA_CLIENT_SECRET,
 };
