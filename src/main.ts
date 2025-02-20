@@ -14,8 +14,8 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options: {
-        host: envs.COMS_MICROSERVICE_HOST,
-        port: envs.COMS_MICROSERVICE_PORT,
+        host: envs.HSM_BE_CORE_COMS_HOST,
+        port: envs.HSM_BE_CORE_COMS_PORT,
       },
     },
   );
@@ -31,6 +31,6 @@ async function bootstrap() {
     }),
   );
   await app.listen();
-  logger.log(`Microservice is active on port ${envs.COMS_MICROSERVICE_PORT}`);
+  logger.log(`Microservice is active on port ${envs.HSM_BE_CORE_COMS_PORT}`);
 }
 bootstrap();

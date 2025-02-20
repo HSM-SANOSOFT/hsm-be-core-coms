@@ -19,10 +19,7 @@ export const databaseProviders = [
         });
         logger.log('Connection pool created successfully.');
 
-        const connection = await pool.getConnection();
-        logger.log('Database connection established successfully.');
-
-        return connection;
+        return pool; // Return the pool instead of a single connection
       } catch (error) {
         logger.error(
           'Error during database initialization:',

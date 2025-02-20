@@ -1,14 +1,16 @@
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { Connection } from 'oracledb';
 import * as oracledb from 'oracledb';
 
 @Injectable()
 export class DatabaseService {
-  constructor(
+  /* constructor(
     @Inject('DATABASE_CONNECTION') private readonly connection: Connection,
-  ) { }
+  ) { }*/
 
+  constructor(
+    @Inject('DATABASE_CONNECTION') private readonly dbPool: oracledb.Pool,
+  ) {}
   logger = new Logger('AUTH DATABASE');
   private response = {
     error: (error: string, statusCode = 400) => {
@@ -25,7 +27,9 @@ export class DatabaseService {
 
   async getsegundaverificacion(codigo: string, tipo: string) {
     try {
-      const result = await this.connection.execute(
+      let connection: oracledb.Connection;
+      connection = await this.dbPool.getConnection();
+      const result = await connection.execute(
         `SELECT COUNT(*) AS NUM FROM PDP_LOG_SEGUNDA_VERIFICACION PV WHERE (PV.PRS_CODIGO=:codigo or PV.CEDULA = :codigo) AND PV.ESTADO='D' AND PV.TIPO= :tipo`,
         [codigo, tipo],
         { outFormat: oracledb.OUT_FORMAT_OBJECT },
@@ -38,11 +42,11 @@ export class DatabaseService {
     }
   }
 
-
-
   async getbuscacodigoverificacion(codigo: string) {
     try {
-      const result = await this.connection.execute(
+      let connection: oracledb.Connection;
+      connection = await this.dbPool.getConnection();
+      const result = await connection.execute(
         `SELECT PV.NUMERO_ENVIADO FROM PDP_LOG_SEGUNDA_VERIFICACION PV WHERE PV.PRS_CODIGO=:codigo AND PV.ESTADO='D' AND PV.TIPO='C'`,
         [codigo],
         { outFormat: oracledb.OUT_FORMAT_OBJECT },
@@ -79,8 +83,8 @@ export class DatabaseService {
         const queryList = isMultipleQueries ? queries : [queries];
 
         for (const query of queryList) {
-          //this.logger.log(`Executing query: ${query.sql}`);
-          //this.logger.log(`Params: ${JSON.stringify(query.params)}`);
+          this.logger.log(`Executing query: ${query.sql}`);
+          this.logger.log(`Params: ${JSON.stringify(query.params)}`);
 
           const result = await connection.execute(
             query.sql,
@@ -184,5 +188,4 @@ export class DatabaseService {
       data: queryData.length === 1 ? queryData[0] : queryData,
     });
   }
-
 }

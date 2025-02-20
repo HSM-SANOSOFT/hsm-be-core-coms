@@ -1,7 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { envs } from 'config';
-import { lastValueFrom, Observable } from 'rxjs';
+import * as moment from 'moment';
+import { lastValueFrom } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
 
 @Injectable()
@@ -15,12 +16,18 @@ export class Helpers {
     try {
       const sql = {
         label: 'updateToken',
-        sql: `SELECT TOKEN, CADUCIDAD FROM API_TOKENS WHERE DOMINIO='MASIVA'`,
+        sql: `SELECT TOKEN, TO_CHAR(CADUCIDAD, 'DD/MM/YYYY HH24:MI:SS') AS CADUCIDAD FROM API_TOKENS WHERE DOMINIO='MASIVA'`,
         params: [],
       };
       const tokeninfo = await this.databaseService.query(sql);
-      if (new Date(tokeninfo.rows[0].CADUCIDAD).getTime() > Date.now()) {
-        return tokeninfo.rows[0].TOKEN;
+      const tokendata = tokeninfo.updateToken[0];
+      const caducidad = moment(
+        tokendata.CADUCIDAD,
+        'DD/MM/YYYY HH:mm:ss',
+      ).toDate();
+
+      if (caducidad.getTime() > Date.now()) {
+        return tokendata.TOKEN;
       } else {
         const body: object = {
           client_id: envs.MASIVA_CLIENT_ID,
@@ -36,14 +43,14 @@ export class Helpers {
           await this.databaseService.query({
             label: 'UPDATE TOKEN',
             sql: `INSERT INTO API_TOKENS_LOG (
-                        "IP",
-                        "FECHA",
-                        "RESPUESTA",
-                        "SOLICITUD",
-                        "ACCION",
-                        "COD_RESP",
-                        "DATA_RC",
-                        "API"
+                        IP,
+                        FECHA,
+                        RESPUESTA,
+                        SOLICITUD,
+                        ACCION,
+                        COD_RESP,
+                        DATA_RC,
+                        API
                     ) VALUES (
                         :IP,
                         SYSDATE,
@@ -53,9 +60,10 @@ export class Helpers {
                         :COD_RESP,
                         :DATA_RC,
                         'MASIVA SMS'
-                    );`,
+                    )`,
             params: [
               '10.1.1.4',
+              'OK',
               'CREDENCIALES',
               'GENERAR NUEVO TOKEN',
               response.status,

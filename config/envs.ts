@@ -12,9 +12,9 @@ dotenv.config({
 });
 
 interface EnvVars {
-  HSM_CORE_COMS_NAME: string;
-  HSM_CORE_COMS_HOST: string;
-  HSM_CORE_COMS_PORT: number;
+  HSM_BE_CORE_COMS_NAME: string;
+  HSM_BE_CORE_COMS_HOST: string;
+  HSM_BE_CORE_COMS_PORT: number;
 
   DB_USER: string;
   DB_PASSWORD: string;
@@ -34,9 +34,9 @@ interface EnvVars {
 
 const envsSchema = joi
   .object({
-    HSM_CORE_COMS_NAME: joi.string().required(),
-    HSM_CORE_COMS_HOST: joi.string().default('localhost'),
-    HSM_CORE_COMS_PORT: joi.number().required(),
+    HSM_BE_CORE_COMS_NAME: joi.string().required(),
+    HSM_BE_CORE_COMS_HOST: joi.string().default('localhost'),
+    HSM_BE_CORE_COMS_PORT: joi.number().required(),
 
     DB_USER: joi.string().required(),
     DB_PASSWORD: joi.string().required(),
@@ -65,9 +65,9 @@ if (error) {
 const envVars: EnvVars = value;
 
 export const envs = {
-  HSM_CORE_COMS_NAME: envVars.HSM_CORE_COMS_NAME,
-  HSM_CORE_COMS_HOST: envVars.HSM_CORE_COMS_HOST,
-  HSM_CORE_COMS_PORT: envVars.HSM_CORE_COMS_PORT,
+  HSM_BE_CORE_COMS_NAME: envVars.HSM_BE_CORE_COMS_NAME,
+  HSM_BE_CORE_COMS_HOST: envVars.HSM_BE_CORE_COMS_HOST,
+  HSM_BE_CORE_COMS_PORT: envVars.HSM_BE_CORE_COMS_PORT,
 
   DB_USER: envVars.DB_USER,
   DB_PASSWORD: envVars.DB_PASSWORD,

@@ -1,9 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { envs } from 'config';
-import { response } from 'express';
 import { lastValueFrom, Observable } from 'rxjs';
-import type { DatabaseService } from 'src/database/database.service';
+import { DatabaseService } from 'src/database/database.service';
 import { SendSMSDto } from 'src/dto/sendSMSDto';
 import { plantillasSMS } from 'src/templates/sms/plantillas.sms';
 import { Helpers } from 'src/utils/helpers';
@@ -18,6 +17,7 @@ export class SmsService {
   ) {}
   async sendSms(smsbody: SendSMSDto) {
     const { telefono, texto, plantilla, modulo, cedula } = smsbody;
+    console.log(smsbody);
     try {
       const token = await this.helpers.updateToken();
       if (token !== 'error') {
@@ -29,11 +29,12 @@ export class SmsService {
         if (!plantillasSMS[plantilla]) {
           return 'Plantilla no encontrada';
         }
-        const texto = replaceTemplate(smsbody, plantillasSMS[plantilla]);
+        const smstext = replaceTemplate(texto, plantillasSMS[plantilla]);
+        console.log(smstext);
         const response = await lastValueFrom(
           this.httpService.post(
             `${envs.MASIVA_URL}messages/send`,
-            { to_number: telefono, message: texto },
+            { to_number: telefono, content: smstext },
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -42,7 +43,13 @@ export class SmsService {
             },
           ),
         );
+        console.log(response);
         if (response.status === 200) {
+          await this.databaseService.query({
+            label: `SMS ENVIADO`,
+            sql: `INSERT INTO PDP_SMS_ENVIADOS (TEXTO, CEDULA, TELEFONO, MODULO) VALUES (:texto, :cedula, :telefono, :modulo)`,
+            params: [smstext, cedula, telefono, modulo],
+          });
           await this.databaseService.query({
             label: `SMS ENVIADO`,
             sql: `INSERT INTO API_TOKENS_LOG (
@@ -62,7 +69,7 @@ export class SmsService {
                 :ACCION,
                 :COD_RESP,
                 :DATA_RC,
-                'MASIVA SMS`,
+                'MASIVA SMS')`,
             params: [
               '10.1.1.4',
               'SMS ENVIADO',

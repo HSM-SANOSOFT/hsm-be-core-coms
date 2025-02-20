@@ -7,7 +7,9 @@ import { envs } from '../config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
-import { Helpers } from './utils/helpers';
+import { EmailsModule } from './emails/emails.module';
+import { SmsModule } from './sms/sms.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
   imports: [
@@ -33,9 +35,11 @@ import { Helpers } from './utils/helpers';
       },
     }),
     DatabaseModule,
+    SmsModule,
+    UtilsModule,
+    EmailsModule,
   ],
   controllers: [AppController],
-  providers: [AppService, Helpers],
-  exports: [Helpers],
+  providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
