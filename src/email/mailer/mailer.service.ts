@@ -80,7 +80,7 @@ export class MailerService {
       this.logger.error(`Subject for ${template} not found`);
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `Subject for ${template} not found`,
+        message: `Subject for ${template} not found.`,
       });
     }
     return subjectMap[template];
