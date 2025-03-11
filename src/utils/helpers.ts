@@ -12,6 +12,7 @@ export class Helpers {
     private readonly databaseService: DatabaseService,
   ) {}
   async updateToken() {
+    /*
     let token;
     try {
       const sql = {
@@ -83,5 +84,6 @@ export class Helpers {
       console.log(error);
       return (token = 'error');
     }
+    */
   }
 }

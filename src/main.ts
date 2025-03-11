@@ -33,4 +33,4 @@ async function bootstrap() {
   await app.listen();
   logger.log(`Microservice is active on port ${envs.HSM_BE_CORE_COMS_PORT}`);
 }
-bootstrap();
+void bootstrap();

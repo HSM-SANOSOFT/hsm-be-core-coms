@@ -1,191 +1,127 @@
+import Mailchimp from '@mailchimp/mailchimp_transactional';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import * as oracledb from 'oracledb';
 
 @Injectable()
 export class DatabaseService {
-  /* constructor(
-    @Inject('DATABASE_CONNECTION') private readonly connection: Connection,
-  ) { }*/
-
+  private readonly logger = new Logger(DatabaseService.name);
   constructor(
     @Inject('DATABASE_CONNECTION') private readonly dbPool: oracledb.Pool,
   ) {}
-  logger = new Logger('AUTH DATABASE');
-  private response = {
-    error: (error: string, statusCode = 400) => {
-      this.logger.log(`Error al ejecutar la consulta: ${error}`);
+
+  async emailRecord(
+    response: Mailchimp.MessagesSendResponse,
+    message: Mailchimp.MessagesMessage,
+    templateName: string,
+    templateVersion: string,
+    templateBaseVersion: string,
+  ) {
+    const Idcorreo = response._id;
+    const email = response.email;
+    const status = response.status;
+    const fechaCreacion = new Date();
+    const fechaEnvio = new Date();
+
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      const results = await connection.execute(
+        `INSERT INTO MAIL_RECORDS (IDCORREO, EMAIL, STATUS, TEMPLATENAME, TEMPLATEVERSION, BASEVERSION, MESSAGE ,FECHACREACION, FECHAULTIMOENVIO) VALUES (:idcorreo, :email, :status, :templatename, :templateversion, :baseversion, :message, :fechacreacion, :fechaultimoenvio)`,
+        [
+          Idcorreo,
+          email,
+          status,
+          templateName,
+          templateVersion,
+          templateBaseVersion,
+          JSON.stringify(message),
+          fechaCreacion,
+          fechaEnvio,
+        ],
+        { autoCommit: true },
+      );
+      return results;
+    } catch (error) {
+      this.logger.error(error);
       throw new RpcException({
-        statusCode,
-        message: {
-          success: false,
-          error: error,
-        },
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
       });
-    },
-  };
-
-  async getsegundaverificacion(codigo: string, tipo: string) {
-    try {
-      let connection: oracledb.Connection;
-      connection = await this.dbPool.getConnection();
-      const result = await connection.execute(
-        `SELECT COUNT(*) AS NUM FROM PDP_LOG_SEGUNDA_VERIFICACION PV WHERE (PV.PRS_CODIGO=:codigo or PV.CEDULA = :codigo) AND PV.ESTADO='D' AND PV.TIPO= :tipo`,
-        [codigo, tipo],
-        { outFormat: oracledb.OUT_FORMAT_OBJECT },
-      );
-      return result.rows.length > 0 ? result.rows[0].NUM : null;
-    } catch (error) {
-      return this.response.error(
-        `Error al ejecutar la consulta: ${error.message}`,
-      );
-    }
-  }
-
-  async getbuscacodigoverificacion(codigo: string) {
-    try {
-      let connection: oracledb.Connection;
-      connection = await this.dbPool.getConnection();
-      const result = await connection.execute(
-        `SELECT PV.NUMERO_ENVIADO FROM PDP_LOG_SEGUNDA_VERIFICACION PV WHERE PV.PRS_CODIGO=:codigo AND PV.ESTADO='D' AND PV.TIPO='C'`,
-        [codigo],
-        { outFormat: oracledb.OUT_FORMAT_OBJECT },
-      );
-      return result.rows.length > 0 ? result.rows[0].NUMERO_ENVIADO : null;
-    } catch (error) {
-      return this.response.error(
-        `Error al ejecutar la consulta: ${error.message}`,
-      );
-    }
-  }
-  async query(
-    queries:
-      | { label: string; sql: string; params?: unknown[] }
-      | { label: string; sql: string; params?: unknown[] }[],
-    transaction: boolean = false,
-  ): Promise<any> {
-    let attempt = 1;
-
-    while (attempt > 0) {
-      let connection: oracledb.Connection;
-      const isMultipleQueries = Array.isArray(queries);
-      const results: Record<string, any> = {};
-      const queryData: any[] = [];
-
-      try {
-        connection = await this.dbPool.getConnection();
-
-        if (transaction) {
-          this.logger.log('Starting transaction...');
-          await connection.execute('BEGIN');
-        }
-
-        const queryList = isMultipleQueries ? queries : [queries];
-
-        for (const query of queryList) {
-          this.logger.log(`Executing query: ${query.sql}`);
-          this.logger.log(`Params: ${JSON.stringify(query.params)}`);
-
-          const result = await connection.execute(
-            query.sql,
-            query.params ?? [],
-            {
-              outFormat: oracledb.OUT_FORMAT_OBJECT,
-              autoCommit: !transaction,
-            },
-          );
-
-          queryData.push({
-            label: query.label,
-            sql: query.sql,
-            params: query.params,
-          });
-
-          if ('rows' in result) {
-            if (!result.rows || result.rows.length === 0) {
-              throw new RpcException({
-                status: HttpStatus.NOT_FOUND,
-                message: `No records found for query: ${query.sql}`,
-              });
-            }
-
-            const formattedRows = result.rows.map((row: Record<string, any>) =>
-              this.formatDates(row),
-            );
-            results[query.label] = results[query.label] = formattedRows; //
-          } else if ('rowsAffected' in result) {
-            if (result.rowsAffected === 0) {
-              throw new RpcException({
-                status: HttpStatus.NOT_FOUND,
-                message: 'No records were modified',
-                data: queryData,
-              });
-            }
-            results[query.label] = true;
-          } else {
-            results[query.label] = null;
-          }
-        }
-
-        if (transaction) {
-          this.logger.log('Committing transaction...');
-          await connection.execute('COMMIT');
-        }
-
-        return results;
-      } catch (error: any) {
-        if (transaction && connection) {
-          this.logger.error('Rolling back transaction due to an error...');
-          await connection.execute('ROLLBACK');
-        }
-        attempt--;
-        if (attempt === 0) throw this.handleDatabaseError(error, queryData);
-
-        this.logger.log(
-          `Retrying database connection in 5 seconds... (${attempt} attempts left)`,
-        );
-        await new Promise(connection => setTimeout(connection, 5000));
-      } finally {
-        if (connection) {
-          try {
-            await connection.close();
-          } catch (closeError: any) {
-            this.logger.error(
-              `Failed to close connection: ${closeError.message}`,
-            );
-          }
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
         }
       }
     }
   }
 
-  private formatDates(row: Record<string, any>): Record<string, any> {
-    const formattedRow: Record<string, any> = {};
+  async resendEmail(id: string) {
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      const results = await connection.execute(
+        `SELECT MESSAGE FROM MAIL_RECORDS WHERE IDCORREO = :idcorreo`,
+        [id],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
 
-    for (const key in row) {
-      if (row[key] instanceof Date) {
-        formattedRow[key] = row[key].toISOString().split('T')[0];
+      if (results.rows && results.rows.length > 0) {
+        const data = results.rows[0] as { MESSAGE: string };
+        const message = JSON.parse(data.MESSAGE) as Mailchimp.MessagesMessage;
+        return message;
       } else {
-        formattedRow[key] = row[key];
+        this.logger.debug('No rows found');
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: 'No rows found',
+        });
+      }
+    } catch (error) {
+      this.logger.error(error);
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
       }
     }
-
-    return formattedRow;
   }
 
-  private handleDatabaseError(error: any, queryData: any[]): RpcException {
-    this.logger.error(`Database error: ${error.message}`);
-
-    const statusMapping: Record<number, HttpStatus> = {
-      942: HttpStatus.BAD_REQUEST,
-      1017: HttpStatus.UNAUTHORIZED,
-      1: HttpStatus.CONFLICT,
-    };
-
-    return new RpcException({
-      status: statusMapping[error.errorNum] || HttpStatus.INTERNAL_SERVER_ERROR,
-      message: error.message,
-      data: queryData.length === 1 ? queryData[0] : queryData,
-    });
+  async emailRecordUpdate(
+    Idcorreo: string,
+    response: Mailchimp.MessagesSendResponse,
+  ) {
+    const status = response.status;
+    let connection: oracledb.Connection | null = null;
+    const fechaultimoenvio = new Date();
+    try {
+      connection = await this.dbPool.getConnection();
+      const results = await connection.execute(
+        `UPDATE MAIL_RECORDS SET STATUS = :status, FECHAULTIMOENVIO = :fechaultimoenvio WHERE IDCORREO = :idcorreo`,
+        [status, fechaultimoenvio, Idcorreo],
+        { autoCommit: true },
+      );
+      return results;
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+    }
   }
 }

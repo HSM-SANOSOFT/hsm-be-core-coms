@@ -16,6 +16,7 @@ export class SmsService {
     private readonly httpService: HttpService,
   ) {}
   async sendSms(smsbody: SendSMSDto) {
+    /*
     const { telefono, texto, plantilla, modulo, cedula } = smsbody;
     console.log(smsbody);
     try {
@@ -85,5 +86,6 @@ export class SmsService {
     } catch (error) {
       return error;
     }
+    */
   }
 }

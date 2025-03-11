@@ -4,11 +4,14 @@ import * as dotenv from 'dotenv';
 import * as joi from 'joi';
 import * as path from 'path';
 
+const pathGlobal = '../../../HSM-KUBERNETES/.env';
 dotenv.config({
-  path: path.resolve(__dirname, '../../../kubernetes/envs/global.env'),
+  path: path.resolve(__dirname, pathGlobal),
 });
+
+const pathSpecific = '../../../HSM-KUBERNETES/envs/hsm-be-core-coms.env';
 dotenv.config({
-  path: path.resolve(__dirname, '../../../kubernetes/envs/coms.env'),
+  path: path.resolve(__dirname, pathSpecific),
 });
 
 interface EnvVars {
@@ -21,11 +24,8 @@ interface EnvVars {
   DB_CONNECTION_STRING: string;
   LD_LIBRARY_PATH: string;
 
-  MAIL_HOST: string;
-  MAIL_PORT: string;
-  MAIL_USER: string;
-  MAIL_PASSWORD: string;
-  MAIL_FROM: string;
+  MAIL_NAME: string;
+  MAIL_API_KEY: string;
 
   MASIVA_URL: string;
   MASIVA_CLIENT_ID: string;
@@ -43,11 +43,8 @@ const envsSchema = joi
     DB_CONNECTION_STRING: joi.string().required(),
     LD_LIBRARY_PATH: joi.string().default('C:/ORACLE/instantclient_12_1'),
 
-    MAIL_HOST: joi.string().required(),
-    MAIL_PORT: joi.string().required(),
-    MAIL_USER: joi.string().email().required(),
-    MAIL_PASSWORD: joi.string().required(),
-    MAIL_FROM: joi.string().email().required(),
+    MAIL_NAME: joi.string().required(),
+    MAIL_API_KEY: joi.string().required(),
 
     MASIVA_URL: joi.string().required(),
     MASIVA_CLIENT_ID: joi.string().required(),
@@ -56,13 +53,13 @@ const envsSchema = joi
   .unknown()
   .required();
 
-const { error, value } = envsSchema.validate(process.env);
+const validationSchema = envsSchema.validate(process.env);
 
-if (error) {
-  throw new Error(`Config validation error: ${error.message}`);
+if (validationSchema.error) {
+  throw new Error(`Config validation error: ${validationSchema.error.message}`);
 }
 
-const envVars: EnvVars = value;
+const envVars: EnvVars = validationSchema.value as EnvVars;
 
 export const envs = {
   HSM_BE_CORE_COMS_NAME: envVars.HSM_BE_CORE_COMS_NAME,
@@ -74,11 +71,8 @@ export const envs = {
   DB_CONNECTION_STRING: envVars.DB_CONNECTION_STRING,
   LD_LIBRARY_PATH: envVars.LD_LIBRARY_PATH,
 
-  MAIL_HOST: envVars.MAIL_HOST,
-  MAIL_PORT: envVars.MAIL_PORT,
-  MAIL_USER: envVars.MAIL_USER,
-  MAIL_PASSWORD: envVars.MAIL_PASSWORD,
-  MAIL_FROM: envVars.MAIL_FROM,
+  MAIL_NAME: envVars.MAIL_NAME,
+  MAIL_API_KEY: envVars.MAIL_API_KEY,
 
   MASIVA_URL: envVars.MASIVA_URL,
   MASIVA_CLIENT_ID: envVars.MASIVA_CLIENT_ID,
