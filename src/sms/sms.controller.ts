@@ -1,20 +1,26 @@
-import { BadRequestException, Controller } from '@nestjs/common';
-import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
+import { Controller, Logger } from '@nestjs/common';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
-import { SendSMSDto } from './../dto/sendSMSDto';
 import { SmsService } from './sms.service';
 
 @Controller('sms')
 export class SmsController {
+  private readonly logger = new Logger(SmsController.name);
   constructor(private readonly smsService: SmsService) {}
 
-  @MessagePattern('sendSMS')
-  async sendSMS(@Payload() sendSMSDto: SendSMSDto) {
-    try {
-      const sms = await this.smsService.sendSms(sendSMSDto);
-      return sms;
-    } catch (e) {
-      throw new RpcException(e);
-    }
+  @MessagePattern('sendSms')
+  async sendSMS(
+    @Payload()
+    data: {
+      telefono: string;
+      templateData: object;
+      templateName: string;
+      modulo: string;
+      cedula: string;
+    },
+  ) {
+    const response = await this.smsService.sendSms(data);
+    this.logger.log(response);
+    return response;
   }
 }

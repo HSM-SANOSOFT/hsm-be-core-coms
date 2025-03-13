@@ -1,91 +1,86 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { envs } from 'config';
-import { lastValueFrom, Observable } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { DatabaseService } from 'src/database/database.service';
-import { SendSMSDto } from 'src/dto/sendSMSDto';
-import { plantillasSMS } from 'src/templates/sms/plantillas.sms';
-import { Helpers } from 'src/utils/helpers';
+
+import { MasivaService } from './masiva/masiva.service';
 
 @Injectable()
 export class SmsService {
-  private readonly template: any;
+  private readonly logger = new Logger(SmsService.name);
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly helpers: Helpers,
     private readonly httpService: HttpService,
+    private readonly masivaService: MasivaService,
   ) {}
-  async sendSms(smsbody: SendSMSDto) {
-    /*
-    const { telefono, texto, plantilla, modulo, cedula } = smsbody;
-    console.log(smsbody);
+
+  async sendSms(data: {
+    telefono: string;
+    templateData: object;
+    templateName: string;
+    modulo: string;
+    cedula: string;
+  }) {
     try {
-      const token = await this.helpers.updateToken();
-      if (token !== 'error') {
-        const replaceTemplate = (texto: object, plantilla: string) => {
-          return plantilla.replace(/{(\w+)}/g, (match, key) => {
-            return texto[key] !== undefined ? texto[key] : match;
-          });
-        };
-        if (!plantillasSMS[plantilla]) {
-          return 'Plantilla no encontrada';
-        }
-        const smstext = replaceTemplate(texto, plantillasSMS[plantilla]);
-        console.log(smstext);
-        const response = await lastValueFrom(
-          this.httpService.post(
-            `${envs.MASIVA_URL}messages/send`,
-            { to_number: telefono, content: smstext },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              },
-            },
-          ),
-        );
-        console.log(response);
-        if (response.status === 200) {
-          await this.databaseService.query({
-            label: `SMS ENVIADO`,
-            sql: `INSERT INTO PDP_SMS_ENVIADOS (TEXTO, CEDULA, TELEFONO, MODULO) VALUES (:texto, :cedula, :telefono, :modulo)`,
-            params: [smstext, cedula, telefono, modulo],
-          });
-          await this.databaseService.query({
-            label: `SMS ENVIADO`,
-            sql: `INSERT INTO API_TOKENS_LOG (
-                "IP",
-                "FECHA",
-                "RESPUESTA",
-                "SOLICITUD",
-                "ACCION",
-                "COD_RESP",
-                "DATA_RC",
-                "API"
-            ) VALUES (
-                :IP,
-                SYSDATE,
-                :RESPUESTA,
-                :SOLICITUD,
-                :ACCION,
-                :COD_RESP,
-                :DATA_RC,
-                'MASIVA SMS')`,
-            params: [
-              '10.1.1.4',
-              'SMS ENVIADO',
-              cedula,
-              'COMSUMO DE API',
-              response.status,
-              JSON.stringify(response.data),
-            ],
-          });
-        }
-        return 'Mensaje enviado';
+      const token = await this.masivaService.updateToken();
+      if (!token) {
+        throw new RpcException({
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: 'Error al obtener token',
+        });
       }
+      const formattedTemplate = this.masivaService.templateParcer(
+        data.templateData,
+        data.templateName,
+      );
+      const response = await lastValueFrom(
+        this.httpService.post(
+          `${envs.MASIVA_URL}/messages/send`,
+          { to_number: data.telefono, content: formattedTemplate },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      );
+
+      const status = response.status;
+      const responseData = response.data as {
+        error: string;
+        status: number;
+        message: string;
+      };
+
+      await this.databaseService.smsRecord(
+        formattedTemplate,
+        data.cedula,
+        data.telefono,
+        data.modulo,
+      );
+
+      await this.databaseService.updateSmsApiLog(
+        'SMS ENVIADO',
+        data.cedula,
+        'COMSUMO DE API',
+        status,
+        responseData,
+      );
+      return {
+        message: 'Mensaje enviado',
+      };
     } catch (error) {
-      return error;
+      this.logger.error(error);
+      if (error instanceof RpcException) {
+        throw error;
+      }
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
     }
-    */
   }
 }

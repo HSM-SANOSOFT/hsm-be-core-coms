@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 import { TemplateDto } from './dto/templateDto';
@@ -6,6 +6,7 @@ import { EmailService } from './email.service';
 
 @Controller('email')
 export class EmailController {
+  private readonly logger = new Logger(EmailController.name);
   constructor(private readonly emailService: EmailService) {}
 
   @MessagePattern('sendEmail')
@@ -20,11 +21,15 @@ export class EmailController {
     const email = data.email;
     const template = data.template;
     const files: Express.Multer.File[] = payload.files;
-    return await this.emailService.sendEmail(email, template, files);
+    const response = await this.emailService.sendEmail(email, template, files);
+    this.logger.log(response);
+    return response;
   }
 
   @MessagePattern('resendEmail')
   async resendEmail(@Payload() id: string) {
-    return await this.emailService.resendEmail(id);
+    const response = await this.emailService.resendEmail(id);
+    this.logger.log(response);
+    return response;
   }
 }
