@@ -74,6 +74,7 @@ export class MailerService {
       'HSM-TE-HAS-BIENVENIDA': 'Mensaje apertura',
       'HSM-TE-HAS-ADM-DOC-DERV-APROB':
         'Documentación de aprobación de su derivación',
+      'HSM-TE-GAA-MKT-COTIZACION': 'Recordatorio de Cotización',
     };
 
     if (!subjectMap[template]) {
