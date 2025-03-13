@@ -5,10 +5,9 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { EmailModule } from './email/email.module';
 import { SmsModule } from './sms/sms.module';
-import { UtilsModule } from './utils/utils.module';
 
 @Module({
-  imports: [DatabaseModule, SmsModule, UtilsModule, EmailModule],
+  imports: [DatabaseModule, SmsModule, EmailModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -72,6 +72,9 @@ export class EmailService {
       return response;
     } catch (error) {
       this.logger.error(error);
+      if (error instanceof RpcException) {
+        throw error;
+      }
       throw new RpcException({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,

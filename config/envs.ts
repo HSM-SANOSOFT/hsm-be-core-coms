@@ -35,7 +35,7 @@ interface EnvVars {
 const envsSchema = joi
   .object({
     HSM_BE_CORE_COMS_NAME: joi.string().required(),
-    HSM_BE_CORE_COMS_HOST: joi.string().default('localhost'),
+    HSM_BE_CORE_COMS_HOST: joi.string().default('0.0.0.0'),
     HSM_BE_CORE_COMS_PORT: joi.number().required(),
 
     DB_USER: joi.string().required(),

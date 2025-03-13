@@ -82,6 +82,10 @@ export class DatabaseService {
       }
     } catch (error) {
       this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
     } finally {
       if (connection) {
         try {
@@ -108,6 +112,157 @@ export class DatabaseService {
         { autoCommit: true },
       );
       return results;
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+    }
+  }
+
+  async smsRecord(
+    smstext: string,
+    cedula: string,
+    telefono: string,
+    modulo: string,
+  ) {
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      await connection.execute(
+        `INSERT INTO PDP_SMS_ENVIADOS
+                (TEXTO, CEDULA, TELEFONO, MODULO)
+                VALUES
+                (:TEXTO, :CEDULA, :TELEFONO, :MODULO)`,
+        [smstext, cedula, telefono, modulo],
+      );
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+    }
+  }
+
+  async getSmsToken() {
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      const tokeninfo = await connection.execute(
+        `SELECT TOKEN, TO_CHAR(CADUCIDAD, 'DD/MM/YYYY HH24:MI:SS') AS CADUCIDAD FROM API_TOKENS WHERE DOMINIO='MASIVA'`,
+        [],
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      const tokendata = tokeninfo.rows?.[0] as {
+        TOKEN: string;
+        CADUCIDAD: string;
+      };
+      return tokendata;
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+    }
+  }
+
+  async updateSmsToken(token: string) {
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      await connection.execute(
+        `UPDATE API_TOKENS SET TOKEN = :TOKEN, CADUCIDAD = SYSDATE + (1/24)
+                WHERE DOMINIO = 'MASIVA'`,
+        [token],
+      );
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException({
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: error as string,
+      });
+    } finally {
+      if (connection) {
+        try {
+          await connection.close();
+        } catch (error) {
+          this.logger.error(error);
+        }
+      }
+    }
+  }
+
+  async updateSmsApiLog(
+    RESPUESTA: string,
+    SOLICITUD: string,
+    ACCION: string,
+    COD_RESP: number,
+    data:
+      | {
+          access_token: string;
+          expires_in: number;
+          token_type: string;
+          scope: string;
+        }
+      | {
+          error: string;
+          status: number;
+          message: string;
+        },
+  ) {
+    let connection: oracledb.Connection | null = null;
+    try {
+      connection = await this.dbPool.getConnection();
+      const DATA_RC = JSON.stringify(data);
+      await connection.execute(
+        `INSERT INTO API_TOKENS_LOG (
+                IP,
+                FECHA,
+                RESPUESTA,
+                SOLICITUD,
+                ACCION,
+                COD_RESP,
+                DATA_RC,
+                API
+            ) VALUES (
+                :IP,
+                SYSDATE,
+                :RESPUESTA,
+                :SOLICITUD,
+                :ACCION,
+                :COD_RESP,
+                :DATA_RC,
+                'MASIVA SMS'
+            )`,
+        ['10.1.1.4', RESPUESTA, SOLICITUD, ACCION, COD_RESP, DATA_RC],
+      );
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
