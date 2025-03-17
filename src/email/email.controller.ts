@@ -20,7 +20,12 @@ export class EmailController {
     const data: { email: string; template: TemplateDto } = payload.data;
     const email = data.email;
     const template = data.template;
-    const files: Express.Multer.File[] = payload.files;
+    const files: Express.Multer.File[] = payload.files.map(file => ({
+      ...file,
+      buffer: Buffer.from(
+        (file.buffer as unknown as { type: string; data: number[] }).data,
+      ),
+    }));
     const response = await this.emailService.sendEmail(email, template, files);
     this.logger.log(response);
     return response;
