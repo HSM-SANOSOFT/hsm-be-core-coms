@@ -68,7 +68,6 @@ export class EmailService {
         templateVersion,
         templateBaseVersion,
       );
-      this.logger.log(response);
       return response;
     } catch (error) {
       this.logger.error(error);
@@ -99,7 +98,6 @@ export class EmailService {
           message: response,
         });
       }
-      this.logger.log(response);
       await this.database.emailRecordUpdate(Idcorreo, response[0]);
       return response;
     } catch (error) {
