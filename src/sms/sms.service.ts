@@ -27,7 +27,7 @@ export class SmsService {
       const token = await this.masivaService.updateToken();
       if (!token) {
         throw new RpcException({
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: 'Error al obtener token',
         });
       }
@@ -78,7 +78,7 @@ export class SmsService {
         throw error;
       }
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     }

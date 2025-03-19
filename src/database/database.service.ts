@@ -45,7 +45,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -76,14 +76,14 @@ export class DatabaseService {
       } else {
         this.logger.debug('No rows found');
         throw new RpcException({
-          status: HttpStatus.NOT_FOUND,
+          statusCode: HttpStatus.NOT_FOUND,
           message: 'No rows found',
         });
       }
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -115,7 +115,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -148,7 +148,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -179,7 +179,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -205,7 +205,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
@@ -266,7 +266,7 @@ export class DatabaseService {
     } catch (error) {
       this.logger.error(error);
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     } finally {
