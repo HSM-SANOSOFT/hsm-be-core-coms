@@ -20,7 +20,7 @@ export class MailerService {
     );
     if (!fs.existsSync(baseTemplatePath)) {
       throw new RpcException({
-        status: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         message: `Base template v${templateBaseVersion} not found`,
       });
     }
@@ -33,7 +33,7 @@ export class MailerService {
     );
     if (!fs.existsSync(templatePath)) {
       throw new RpcException({
-        status: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         message: `Template ${templateEmail} v${templateEmailVersion} not found`,
       });
     }
@@ -80,7 +80,7 @@ export class MailerService {
     if (!subjectMap[template]) {
       this.logger.error(`Subject for ${template} not found`);
       throw new RpcException({
-        status: HttpStatus.NOT_FOUND,
+        statusCode: HttpStatus.NOT_FOUND,
         message: `Subject for ${template} not found.`,
       });
     }

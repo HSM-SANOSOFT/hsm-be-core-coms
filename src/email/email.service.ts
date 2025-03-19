@@ -57,7 +57,7 @@ export class EmailService {
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
         this.logger.error(response);
         throw new RpcException({
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: response,
         });
       }
@@ -75,7 +75,7 @@ export class EmailService {
         throw error;
       }
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     }
@@ -86,7 +86,7 @@ export class EmailService {
       const message = await this.database.resendEmail(Idcorreo);
       if (!message) {
         throw new RpcException({
-          status: HttpStatus.NOT_FOUND,
+          statusCode: HttpStatus.NOT_FOUND,
           message: 'Email record not found',
         });
       }
@@ -94,7 +94,7 @@ export class EmailService {
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
         this.logger.error(response);
         throw new RpcException({
-          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
           message: response,
         });
       }
@@ -106,7 +106,7 @@ export class EmailService {
         throw error;
       }
       throw new RpcException({
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: error as string,
       });
     }
