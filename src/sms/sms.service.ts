@@ -1,8 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
-import { envs } from 'config';
 import { lastValueFrom } from 'rxjs';
+import { envs } from 'src/config';
 import { DatabaseService } from 'src/database/database.service';
 
 import { MasivaService } from './masiva/masiva.service';
