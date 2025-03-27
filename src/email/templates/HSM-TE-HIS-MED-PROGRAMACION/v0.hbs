@@ -1,0 +1,33 @@
+<p>Le saludamos del Hospital Santamaria, le recordamos el cronograma de cirugias de: {{fecha_inicial}} - {{fecha_final}}</p>
+<table>
+    <thead>
+        <tr style='font-size: 10px'>
+	      	<th style='text-align: center; width: 10%'>NUM. PARTE </th>
+	        <th style='text-align: center; width: 10%'>FECHA </th>
+	        <th style='text-align: center; width: 5%'>HORA</th>
+	        <th style='text-align: center; width: 5%'>QX</th>
+	        <th style='text-align: center; width: 5%'>HC</th>
+	        <th style='text-align: center; width: 10%'>PACIENTE</th>
+	        <th style='text-align: center; width: 30%'>PROCEDIMIENTO</th>
+	        <th style='text-align: center; width: 20%'>CIRUJANO</th>
+	        <th style='text-align: center; width: 20%'>OBSERVACION</th>
+	      </tr>
+    </thead>
+    <tbody>
+        {{#each cirugias}}
+        <tr>
+            <td>{{numParte}}</td>
+            <td>{{fecha}}</td>
+            <td>{{hora}}</td>
+            <td>{{qx}}</td>
+            <td>{{hc}}</td>
+            <td>{{paciente}}</td>
+            <td>{{procedimiento}}</td>
+            <td>{{cirujano}}</td>
+            <td>{{observacion}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
+
+<p>Atentamente</p>
+<p>Hospital Santamaria</p>
