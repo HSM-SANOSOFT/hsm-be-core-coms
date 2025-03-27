@@ -1,109 +1,108 @@
 <!DOCTYPE html>
-    <html lang='es'>
-    <head>
-        <meta charset='UTF-8'>
-        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
-        <style>
-            .body{
-                margin-left: auto;
-                margin-right: auto;
-                width: 90%;
-                max-width: 1300px;
-                justify-content: center;
-                display: grid;
-            }
-            .logo{
-                padding: 1rem;
-                background-color: white;
-                color: white;
-                margin-left: 0px;
-                margin-right: auto;
-            }
-            .card{
-                border: 1px solid black;
-                border-radius: 1rem;
-                margin-left: auto;
-                margin-right: auto;
-                overflow: hidden;
-                
-            }
-            .main {
-                padding: 2rem;
-                font-size: large;
-            }
-            .header{
-                background-color: #06478d;
-                color: white;
-            }
-            h1{
-                text-align: center;
-            }
-            .footer{
-                padding: 1rem;
-                background-color: #06478d;
-                color: white;
-                border-top: 1px solid black;
-                text-align: center;
-            }
-            .row {
-                display: grid;
-            }
-            .col-12 {
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-            img {
-                height: auto;
-                background-color:white;
-            }
-            ul {
-                list-style-type: none;
-                font-size: medium;
-                margin: 0;
-                padding: 0;
-            }
-            li {
-                margin: 0;
-                padding: 0;
-            }
-        </style>
-    </head>
-    <body>
-        <div class='body'>
-            <div class='card'>
-                <div class='row header'>
-                    <div class='col-12'>
-                        <h1>{{titulo}}.</h1>
+  <html lang='es'>
+  <head>
+      <meta charset='UTF-8'>
+      <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+      <style>
+          .body{
+              margin-left: auto;
+              margin-right: auto;
+              width: 90%;
+              max-width: 1300px;
+              justify-content: center;
+              display: grid;
+          }
+          .logo{
+              padding: 1rem;
+              background-color: white;
+              color: white;
+              margin-left: 0px;
+              margin-right: auto;
+          }
+          .card{
+              border: 1px solid black;
+              border-radius: 1rem;
+              margin-left: auto;
+              margin-right: auto;
+              overflow: hidden;
+              
+          }
+          .main {
+              padding: 2rem;
+              font-size: large;
+          }
+          .header{
+              background-color: #06478d;
+              color: white;
+          }
+          h1{
+              text-align: center;
+          }
+          .footer{
+              padding: 1rem;
+              background-color: #06478d;
+              color: white;
+              border-top: 1px solid black;
+              text-align: center;
+          }
+          .row {
+              display: grid;
+          }
+          .col-12 {
+              padding-left: 15px;
+              padding-right: 15px;
+          }
+          img {
+              height: auto;
+              background-color:white;
+          }
+          ul {
+              list-style-type: none;
+              font-size: medium;
+              margin: 0;
+              padding: 0;
+          }
+          li {
+              margin: 0;
+              padding: 0;
+          }
+      </style>
+  </head>
+  <body>
+      <div class='body'>
+          <div class='card'>
+              <div class='row header'>
+                  <div class='col-12'>
+                      <h1>{{titulo}}.</h1>
+                  </div>
+              </div>
+              <div class='row main container'>
+                  <div class='col-12'>
+                    <br>
+                    {{body}}
+                    <br>
                     </div>
-                </div>
-                <div class='row main container'>
-                    <div class='col-12'>
-                      {{body}}
-                      </div>
-                        
-                        <ul>
-                            <li>Hospital Santamaria Clisanta S.A.</li>
-                            <li>Dirección: Lorenzo de Garaicoa 3208 y Argentina</li>
-                            <li>Telf.: 2404650/2401767/2417824 EXT 501</li>
-                            <li>www.hospitalsantamaria.com.ec</li>
-                            <li>www.facebook.com/hospitalsantamariaec</li>
-                            <li>@hospitalsantamaria</li>
-                        </ul>
-                        
-                    </div>
-                </div>
-                <div class='footer'>
-                    <p>Copyright © {{current_year}} Hospital Santamaria</p>
-                    <p>Si esta información no es de su interes.</p>
-                    <p>Escribirnos un correo en blanco a <b><a style="color:rgb(255, 255, 255); text-decoration: none; font-weight: bold;" href="mailto:delegadolopdp@hospitalsantamaria.com.ec">delegadolopdp@hospitalsantamaria.com.ec</a></b> con el Asunto "REMOVER".</p>
-                    <p>O haciendo <a href="mailto:delegadolopdp@hospitalsantamaria.com.ec?subject=REMOVER" 
-                        style="color:rgb(255, 255, 255); text-decoration: none; font-weight: bold;">
-                        Click Aquí
-                        </a>
-                    </p>
-                </div>
-            </div>
-                
-            </div>
-        </body>
-    </html>
+                      <ul>
+                          <li>Hospital Santamaria Clisanta S.A.</li>
+                          <li>Dirección: Lorenzo de Garaicoa 3208 y Argentina</li>
+                          <li>Telf.: 2404650/2401767/2417824 EXT 501</li>
+                          <li>www.hospitalsantamaria.com.ec</li>
+                          <li>www.facebook.com/hospitalsantamariaec</li>
+                          <li>@hospitalsantamaria</li>
+                      </ul>
+                  </div>
+              </div>
+              <div class='footer'>
+                  <p>Copyright © {{current_year}} Hospital Santamaria</p>
+                  <p>Si esta información no es de su interes.</p>
+                  <p>Escribirnos un correo en blanco a <b><a style="color:rgb(255, 255, 255); text-decoration: none; font-weight: bold;" href="mailto:delegadolopdp@hospitalsantamaria.com.ec">delegadolopdp@hospitalsantamaria.com.ec</a></b> con el Asunto "REMOVER".</p>
+                  <p>O haciendo <a href="mailto:delegadolopdp@hospitalsantamaria.com.ec?subject=REMOVER" 
+                      style="color:rgb(255, 255, 255); text-decoration: none; font-weight: bold;">
+                      Click Aquí
+                      </a>
+                  </p>
+              </div>
+          </div>
+          </div>
+      </body>
+  </html>

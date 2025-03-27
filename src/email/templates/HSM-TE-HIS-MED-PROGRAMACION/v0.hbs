@@ -1,0 +1,30 @@
+<p>Le saludamos del Hospital Santamaria, le recordamos el cronograma de cirugias de: {{fecha_inicial}} - {{fecha_final}}</p>
+<table>
+    <thead>
+        <tr style='font-size: 10px'>
+	      	<th style='text-align: center; width: 10%'>NUM. PARTE </th>
+	        <th style='text-align: center; width: 10%'>FECHA </th>
+	        <th style='text-align: center; width: 5%'>HORA</th>
+	        <th style='text-align: center; width: 5%'>QX</th>
+	        <th style='text-align: center; width: 5%'>HC</th>
+	        <th style='text-align: center; width: 10%'>PACIENTE</th>
+	        <th style='text-align: center; width: 30%'>PROCEDIMIENTO</th>
+	        <th style='text-align: center; width: 20%'>CIRUJANO</th>
+	        <th style='text-align: center; width: 20%'>OBSERVACION</th>
+	      </tr>
+    </thead>
+    <tbody>
+        {{#each cirugias}}
+        <tr>
+            <td style='text-align: center'>{{numParte}}</td>
+            <td style='text-align: center'>{{fecha}}</td>
+            <td style='text-align: center'>{{hora}}</td>
+            <td style='text-align: center'>{{qx}}</td>
+            <td style='text-align: center'>{{hc}}</td>
+            <td style='text-align: center'>{{paciente}}</td>
+            <td style='text-align: center'>{{procedimiento}}</td>
+            <td style='text-align: center'>{{cirujano}}</td>
+            <td style='text-align: center'>{{observacion}}</td>
+        </tr>
+        {{/each}}
+    </tbody>

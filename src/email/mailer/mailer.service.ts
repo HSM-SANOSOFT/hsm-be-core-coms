@@ -75,6 +75,7 @@ export class MailerService {
       'HSM-TE-HAS-ADM-DOC-DERV-APROB':
         'Documentación de aprobación de su derivación',
       'HSM-TE-GAA-MKT-COTIZACION': 'Recordatorio de Cotización',
+      'HSM-TE-HIS-MED-PROGRAMACION': 'Programación de Cirugias',
     };
 
     if (!subjectMap[template]) {
