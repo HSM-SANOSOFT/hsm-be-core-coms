@@ -4,16 +4,18 @@ import { RpcException } from '@nestjs/microservices';
 import * as moment from 'moment';
 import { lastValueFrom } from 'rxjs';
 import { envs } from 'src/config';
-import { DatabaseService } from 'src/database/database.service';
+
+import { DatabaseRepository } from '../../database/database.repository';
 @Injectable()
 export class MasivaService {
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly databaseRepository: DatabaseRepository,
     private readonly httpService: HttpService,
   ) {}
 
   async updateToken() {
-    const tokendata = await this.databaseService.getSmsToken();
+    const tokendata =
+      await this.databaseRepository.apiTokensRepository.getSmsToken();
     let token: string = tokendata.TOKEN;
     const caducidad = moment(
       tokendata.CADUCIDAD,
@@ -37,8 +39,8 @@ export class MasivaService {
           scope: string;
         };
         token = data.access_token;
-        await this.databaseService.updateSmsToken(token);
-        await this.databaseService.updateSmsApiLog(
+        await this.databaseRepository.apiTokensRepository.updateSmsToken(token);
+        await this.databaseRepository.apiTokensLogRepository.updateSmsApiLog(
           'ok',
           'CREDENCIALES',
           'GENERAR NUEVO TOKEN',
@@ -49,7 +51,7 @@ export class MasivaService {
       } catch (error) {
         throw new RpcException({
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: error as string,
+          message: JSON.stringify(error),
         });
       }
     }

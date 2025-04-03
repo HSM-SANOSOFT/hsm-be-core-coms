@@ -20,7 +20,7 @@ export class SmsController {
     },
   ) {
     const response = await this.smsService.sendSms(data);
-    this.logger.log(response);
+    this.logger.log(JSON.stringify(response));
     return response;
   }
 }

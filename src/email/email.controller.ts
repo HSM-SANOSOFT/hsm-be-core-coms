@@ -27,14 +27,14 @@ export class EmailController {
       ),
     }));
     const response = await this.emailService.sendEmail(email, template, files);
-    this.logger.log(response);
+    this.logger.log(JSON.stringify(response));
     return response;
   }
 
   @MessagePattern('resendEmail')
   async resendEmail(@Payload() id: string) {
     const response = await this.emailService.resendEmail(id);
-    this.logger.log(response);
+    this.logger.log(JSON.stringify(response));
     return response;
   }
 }

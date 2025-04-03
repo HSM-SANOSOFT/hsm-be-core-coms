@@ -14,7 +14,7 @@ export const MailerProvider = [
         }
         return Mailchimp(apiKey);
       } catch (error) {
-        logger.error(error);
+        logger.error(JSON.stringify(error));
       }
     },
   },

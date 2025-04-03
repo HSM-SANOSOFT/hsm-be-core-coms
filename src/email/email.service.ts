@@ -2,7 +2,7 @@ import Mailchimp from '@mailchimp/mailchimp_transactional';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 
-import { DatabaseService } from '../database/database.service';
+import { DatabaseRepository } from '../database/database.repository';
 import { TemplateDto } from './dto/templateDto';
 import { MailerService } from './mailer/mailer.service';
 
@@ -12,7 +12,7 @@ export class EmailService {
   constructor(
     @Inject('MAILER') private readonly emailer: Mailchimp.ApiClient,
     private readonly mailer: MailerService,
-    private readonly database: DatabaseService,
+    private readonly databaseRepository: DatabaseRepository,
   ) {}
   async sendEmail(
     email: string,
@@ -55,13 +55,13 @@ export class EmailService {
     try {
       const response = await this.emailer.messages.send({ message: message });
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
-        this.logger.error(response);
+        this.logger.error(JSON.stringify(response));
         throw new RpcException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: response,
+          message: JSON.stringify(response),
         });
       }
-      await this.database.emailRecord(
+      await this.databaseRepository.mailRecordsRepository.emailRecord(
         response[0],
         message,
         templateName,
@@ -70,20 +70,23 @@ export class EmailService {
       );
       return response;
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(JSON.stringify(error));
       if (error instanceof RpcException) {
         throw error;
       }
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error as string,
+        message: JSON.stringify(error),
       });
     }
   }
 
   async resendEmail(Idcorreo: string): Promise<unknown> {
     try {
-      const message = await this.database.resendEmail(Idcorreo);
+      const message =
+        await this.databaseRepository.mailRecordsRepository.resendEmail(
+          Idcorreo,
+        );
       if (!message) {
         throw new RpcException({
           statusCode: HttpStatus.NOT_FOUND,
@@ -92,22 +95,25 @@ export class EmailService {
       }
       const response = await this.emailer.messages.send({ message: message });
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
-        this.logger.error(response);
+        this.logger.error(JSON.stringify(response));
         throw new RpcException({
           statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: response,
+          message: JSON.stringify(response),
         });
       }
-      await this.database.emailRecordUpdate(Idcorreo, response[0]);
+      await this.databaseRepository.mailRecordsRepository.emailRecordUpdate(
+        Idcorreo,
+        response[0],
+      );
       return response;
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(JSON.stringify(error));
       if (error instanceof RpcException) {
         throw error;
       }
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error as string,
+        message: JSON.stringify(error),
       });
     }
   }

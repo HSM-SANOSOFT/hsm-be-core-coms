@@ -3,15 +3,15 @@ import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { envs } from 'src/config';
-import { DatabaseService } from 'src/database/database.service';
 
+import { DatabaseRepository } from '../database/database.repository';
 import { MasivaService } from './masiva/masiva.service';
 
 @Injectable()
 export class SmsService {
   private readonly logger = new Logger(SmsService.name);
   constructor(
-    private readonly databaseService: DatabaseService,
+    private readonly databaseRepository: DatabaseRepository,
     private readonly httpService: HttpService,
     private readonly masivaService: MasivaService,
   ) {}
@@ -55,14 +55,14 @@ export class SmsService {
         message: string;
       };
 
-      await this.databaseService.smsRecord(
+      await this.databaseRepository.pdpSmsEnviadosRepository.smsRecord(
         formattedTemplate,
         data.cedula,
         data.telefono,
         data.modulo,
       );
 
-      await this.databaseService.updateSmsApiLog(
+      await this.databaseRepository.apiTokensLogRepository.updateSmsApiLog(
         'SMS ENVIADO',
         data.cedula,
         'COMSUMO DE API',
@@ -73,13 +73,13 @@ export class SmsService {
         message: 'Mensaje enviado',
       };
     } catch (error) {
-      this.logger.error(error);
+      this.logger.error(JSON.stringify(error));
       if (error instanceof RpcException) {
         throw error;
       }
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: error as string,
+        message: JSON.stringify(error),
       });
     }
   }
