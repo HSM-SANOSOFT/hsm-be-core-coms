@@ -77,6 +77,7 @@ export class MailerService {
         'Documentación de aprobación de su derivación',
       'HSM-TE-GAA-MKT-COTIZACION': 'Recordatorio de Cotización',
       'HSM-TE-HIS-MED-PROGRAMACION': 'Programación de Cirugias',
+      'HSM-TE-HIS-DICOM-IMG': 'Resultados DICOM',
     };
 
     if (!subjectMap[template]) {
