@@ -40,7 +40,7 @@ export class EmailService {
 
     const message: Mailchimp.MessagesMessage = {
       from_name: 'Hospital Santamaria',
-      from_email: 'soporte@hospitalsantamaria.com.ec',
+      from_email: 'noreply@hospitalsm.org',
       bcc_address: 'sistemas@hospitalsantamaria.com.ec',
       subject: subject,
       to: [{ email: email, type: 'to' }],
