@@ -44,6 +44,7 @@
     "eslint-plugin-stylelint": "^0.1.1",
     "glob": "^11.0.1",
     "globals": "^16.0.0",
+    "handlebars": "^4.7.8",
     "inflight": "^1.0.6",
     "joi": "^17.13.3",
     "moment": "^2.30.1",

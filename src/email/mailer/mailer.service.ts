@@ -1,12 +1,23 @@
 import Mailchimp from '@mailchimp/mailchimp_transactional';
-import { HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { UUID } from 'crypto';
 import * as fs from 'fs';
+import Handlebars from 'handlebars';
 import * as path from 'path';
+import { EmailTemplate } from 'src/type';
+import {
+  EmailTemplateType,
+  EmailTemplateTypePayload,
+  EmailTemplateTypesSubjectMap,
+} from 'src/type/template/email';
+import { BaseEmailTemplate } from 'src/type/template/email/base.type';
 
 @Injectable()
 export class MailerService {
+  @Inject('EMAIL_TEMPLATE_PROVIDER') private readonly template: EmailTemplate;
   private readonly logger = new Logger(MailerService.name);
+
   templateHtmlParcer(
     templateEmail: string,
     templateEmailVersion: string,
@@ -101,6 +112,42 @@ export class MailerService {
       name: file.originalname,
       content: file.buffer.toString('base64'),
     })) as Mailchimp.MessageAttachment[];
+    return attachments;
+  }
+
+  templateParcer(
+    type: EmailTemplateType,
+    payload: EmailTemplateTypePayload,
+  ): string {
+    try {
+      const template = this.template[type];
+      const compiledTemplate = Handlebars.compile(template);
+      const templateHtml = compiledTemplate(payload);
+      const base_template = this.template[EmailTemplateType.base];
+      const titulo = EmailTemplateTypesSubjectMap[type];
+      const compiledBaseTemplate = Handlebars.compile(base_template);
+      const html = compiledBaseTemplate({
+        titulo,
+        body: templateHtml,
+        current_year: new Date().getFullYear().toString(),
+      } as BaseEmailTemplate);
+      return html;
+    } catch (error) {
+      this.logger.error(`Error compiling template for type ${type}: ${error}`);
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: `Error compiling template for type ${type}.`,
+      });
+    }
+  }
+
+  templateDocumentParcer(uuids: UUID[]) {
+    const attachments = uuids.map(uuid => ({
+      type: 'application/pdf',
+      name: `${uuid}.pdf`,
+      content: Buffer.from(`PDF content for ${uuid}`).toString('base64'), //missing minio logic to fetch the actual PDF content
+    })) as Mailchimp.MessageAttachment[];
+
     return attachments;
   }
 }

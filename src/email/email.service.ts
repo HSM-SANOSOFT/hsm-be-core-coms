@@ -1,6 +1,8 @@
 import Mailchimp from '@mailchimp/mailchimp_transactional';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
+import { SendEmailPostType } from 'src/type/sendEmail.post.type';
+import { EmailTemplateTypesSubjectMap } from 'src/type/template/email';
 
 import { DatabaseRepository } from '../database/database.repository';
 import { TemplateDto } from './dto/templateDto';
@@ -114,6 +116,58 @@ export class EmailService {
       throw new RpcException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: JSON.stringify(error),
+      });
+    }
+  }
+
+  async sendEmail2(data: SendEmailPostType) {
+    const { email, type, data: templateData, attachments } = data;
+
+    const html = this.mailer.templateParcer(type, templateData);
+    const subject = EmailTemplateTypesSubjectMap[type];
+    let attachmentFiles: Mailchimp.MessageAttachment[] = [];
+    if (attachments && attachments.length > 0) {
+      attachmentFiles = this.mailer.templateDocumentParcer(attachments);
+    }
+
+    try {
+      const message: Mailchimp.MessagesMessage = {
+        from_name: 'Hospital Santamaria',
+        from_email: 'noreply@hospitalsm.org',
+        to: [{ email: email, type: 'to' }],
+        subject: subject,
+        html: html,
+        auto_text: true,
+        track_opens: true,
+        track_clicks: true,
+        ...(attachmentFiles.length > 0 && { attachments: attachmentFiles }),
+      };
+      const response = await this.emailer.messages.send({ message: message });
+      if (!Array.isArray(response) || !response[0] || !response[0]._id) {
+        this.logger.error(JSON.stringify(response));
+        throw new RpcException({
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: JSON.stringify(response),
+        });
+      }
+      await this.databaseRepository.mailRecordsRepository.emailRecord(
+        response[0],
+        message,
+        type,
+        'latest',
+        'latest',
+      );
+      return response;
+    } catch (error) {
+      this.logger.error(
+        `Error sending email to ${email}: ${JSON.stringify(error)}`,
+      );
+      if (error instanceof RpcException) {
+        throw error;
+      }
+      throw new RpcException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: `Error sending email to ${email}.`,
       });
     }
   }
