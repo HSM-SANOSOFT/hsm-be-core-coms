@@ -5,7 +5,7 @@ import { join } from 'path';
 import type { EmailTemplate } from 'src/type';
 import { EmailTemplateType } from 'src/type/template/email';
 
-const TEMPLATE_DIR = join(__dirname, 'templates');
+const TEMPLATE_DIR = join(__dirname, '..', 'templates');
 
 const logger = new Logger('MailerTemplateProvider');
 
