@@ -31,12 +31,14 @@ export class MailerService {
       `v${templateBaseVersion}.hbs`,
     );
     if (!fs.existsSync(baseTemplatePath)) {
+      this.logger.error(`Base template v${templateBaseVersion} not found`);
       throw new RpcException({
         statusCode: HttpStatus.NOT_FOUND,
         message: `Base template v${templateBaseVersion} not found`,
       });
+    } else {
+      this.logger.debug(`Found Base Template Path: ${baseTemplatePath}`);
     }
-    this.logger.debug(`Found Base Template Path: ${baseTemplatePath}`);
 
     const templatePath = path.resolve(
       __dirname,
@@ -45,20 +47,22 @@ export class MailerService {
       `v${templateEmailVersion}.hbs`,
     );
     if (!fs.existsSync(templatePath)) {
+      this.logger.error(`Template ${templateEmail} v${templateEmailVersion} not found`);
       throw new RpcException({
         statusCode: HttpStatus.NOT_FOUND,
         message: `Template ${templateEmail} v${templateEmailVersion} not found`,
       });
+    } else {
+      this.logger.debug(`Found Template Path: ${templatePath}`);
     }
-    this.logger.debug(`Found Template Path: ${templatePath}`);
-    
+
     const baseTemplateContent = fs.readFileSync(baseTemplatePath, 'utf-8');
     const templateEmailContent = fs.readFileSync(templatePath, 'utf-8');
     const anioActual = new Date().getFullYear().toString();
     const htmlTemplate = baseTemplateContent
       .replace('{{body}}', templateEmailContent)
       .replace('{{current_year}}', anioActual);
-    
+
     this.logger.debug(`Parsed HTML for template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
     return htmlTemplate;
   }
@@ -107,8 +111,9 @@ export class MailerService {
         statusCode: HttpStatus.NOT_FOUND,
         message: `Subject for ${template} not found.`,
       });
+    }else {
+      this.logger.debug(`Found subject for template ${template}: ${subjectMap[template]}`);
     }
-    this.logger.debug(`Parsed subject for template ${template}: ${subjectMap[template]}`);
     return subjectMap[template];
   }
 
