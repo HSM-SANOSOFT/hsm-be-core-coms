@@ -35,6 +35,7 @@ export class MailerService {
         message: `Base template v${templateBaseVersion} not found`,
       });
     }
+    this.logger.debug(`Parsing template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
 
     const templatePath = path.resolve(
       __dirname,
@@ -48,6 +49,7 @@ export class MailerService {
         message: `Template ${templateEmail} v${templateEmailVersion} not found`,
       });
     }
+    this.logger.debug(`Parsing template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
     const baseTemplateContent = fs.readFileSync(baseTemplatePath, 'utf-8');
     const templateEmailContent = fs.readFileSync(templatePath, 'utf-8');
     const anioActual = new Date().getFullYear().toString();
@@ -62,6 +64,7 @@ export class MailerService {
       name: key,
       content: data[key] as string,
     }));
+    this.logger.debug(`Parsed template data: ${JSON.stringify(datas)}`);
     return datas;
   }
 
@@ -99,6 +102,7 @@ export class MailerService {
         message: `Subject for ${template} not found.`,
       });
     }
+    this.logger.debug(`Parsed subject for template ${template}: ${subjectMap[template]}`);
     return subjectMap[template];
   }
 

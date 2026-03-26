@@ -31,12 +31,18 @@ export class EmailService {
       templateVersion,
       templateBaseVersion,
     );
+    this.logger.debug(`Parsed HTML for template ${templateName} version ${templateVersion} with base version ${templateBaseVersion}`);
+
     const subject = this.mailer.templateSubjectParcer(templateName);
+    this.logger.debug(`Parsed subject for template ${templateName}: ${subject}`);
+
     const data2Parce = {
       ...templateData,
       titulo: subject,
     };
     const data = this.mailer.templateDataParcer(data2Parce);
+    this.logger.debug(`Parsed template data for template ${templateName}: ${JSON.stringify(data)}`);
+
     const attachments: Mailchimp.MessageAttachment[] =
       this.mailer.templateAttachmentsParcer(files);
 
@@ -70,6 +76,7 @@ export class EmailService {
         templateVersion,
         templateBaseVersion,
       );
+      this.logger.log(`Email sent to ${email} with template ${templateName}`);
       return response;
     } catch (error) {
       this.logger.error(JSON.stringify(error));
