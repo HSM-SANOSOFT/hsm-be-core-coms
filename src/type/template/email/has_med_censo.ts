@@ -9,5 +9,6 @@ export type HasMedCensoEmailTemplate = {
         fech_ingreso: string;
         dias: string;
         fecha_censo: string;
+        cabecera: string;
     }>;
 };
