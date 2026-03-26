@@ -6,7 +6,7 @@ import { EmailService } from './email.service';
 
 @Controller('email')
 export class EmailController {
-  private readonly logger = new Logger(EmailController.name);
+  private readonly logger = new Logger('EmailController');
   constructor(private readonly emailService: EmailService) {}
 
   @MessagePattern('sendEmail')

@@ -21,6 +21,7 @@ export class EmailService {
     template: TemplateDto,
     files: Express.Multer.File[],
   ): Promise<unknown> {
+    this.logger.debug('SendEmail called');
     const templateName = template.name;
     const templateVersion = template.version;
     const templateBaseVersion = template.baseVersion;
@@ -132,6 +133,7 @@ export class EmailService {
 
   // en desarollo
   async sendEmail2(data: SendEmailPostType) {
+    this.logger.debug('sendEmail2 called');
     const { email, type, data: templateData, attachments } = data;
 
     const html = this.mailer.templateParcer(type, templateData);
