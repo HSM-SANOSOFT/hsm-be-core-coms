@@ -61,7 +61,9 @@ export class EmailService {
       merge_language: 'handlebars',
       ...(attachments.length > 0 && { attachments: attachments }),
     };
-    this.logger.debug(`Sending email to ${email} with message: ${JSON.stringify(message)}`);
+
+    const { _attachments, ...messageLogg } = message;
+    this.logger.debug(`Sending email to ${email} with message: ${JSON.stringify(messageLogg)}`);
     try {
       const response = await this.emailer.messages.send({ message: message });
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
