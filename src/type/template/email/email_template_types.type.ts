@@ -23,4 +23,5 @@ export enum EmailTemplateType {
   his_solicitud_examen_laboratorio = 'his_solicitud_examen_laboratorio',
   his_solicitud_examen_imagen = 'his_solicitud_examen_imagen',
   his_solicitud_examen_patologia = 'his_solicitud_examen_patologia',
+  has_med_censo = 'has_med_censo'
 }

@@ -120,6 +120,7 @@ export class EmailService {
     }
   }
 
+  // en desarollo
   async sendEmail2(data: SendEmailPostType) {
     const { email, type, data: templateData, attachments } = data;
 

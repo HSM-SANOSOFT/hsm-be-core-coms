@@ -9,6 +9,7 @@ import type { AdmRecordatorioCitaEmailTemplate } from './adm_recordatorio_cita.t
 import type { BaseEmailTemplate } from './base.type';
 import type { EmailTemplateType } from './email_template_types.type';
 import type { FacFacturaListaEmailTemplate } from './fac_factura_lista.type';
+import { HasMedCensoEmailTemplate } from './has_med_censo';
 import type { HisCertificadoMedicoEmailTemplate } from './his_certificado_medico.type';
 import type { HisProgramacionQuirofanoEmailTemplate } from './his_programacion_quirofano.type';
 import type { HisRecetaMedicaEmailTemplate } from './his_receta_medica.type';
@@ -49,4 +50,5 @@ export type EmailTemplatesTypesMap = {
   [EmailTemplateType.pin_recovery]: PinRecoveryEmailTemplate;
   [EmailTemplateType.pin_register]: PinRegisterEmailTemplate;
   [EmailTemplateType.pin_result]: PinResultEmailTemplate;
+  [EmailTemplateType.has_med_censo]: HasMedCensoEmailTemplate;
 };

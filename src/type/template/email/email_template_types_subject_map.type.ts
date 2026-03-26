@@ -33,4 +33,5 @@ export const EmailTemplateTypesSubjectMap = {
   [EmailTemplateType.pin_register]:
     'Pin de seguridad registro de ingreso al SANOSOFT',
   [EmailTemplateType.pin_result]: 'Pin de seguridad para visualizar resultados',
+  [EmailTemplateType.has_med_censo]: 'Censo Diario',
 };

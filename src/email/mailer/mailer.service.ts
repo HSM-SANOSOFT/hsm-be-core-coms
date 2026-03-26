@@ -89,6 +89,7 @@ export class MailerService {
       'HSM-TE-GAA-MKT-COTIZACION': 'Recordatorio de Cotización',
       'HSM-TE-HIS-MED-PROGRAMACION': 'Programación de Cirugias',
       'HSM-TE-HIS-DICOM-IMG': 'Resultados DICOM',
+      'HSM-TE-HAS-MED-CENSO': 'Censo Diario'
     };
 
     if (!subjectMap[template]) {
@@ -115,6 +116,7 @@ export class MailerService {
     return attachments;
   }
 
+  //emailservice 2
   templateParcer(
     type: EmailTemplateType,
     payload: EmailTemplateTypePayload,

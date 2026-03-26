@@ -1,0 +1,28 @@
+<p>Le saludamos del Hospital Santamaria, Adjunto encontrara el censo del día: {{fecha_censo}}</p>
+<table>
+    <thead>
+        <tr style='font-size: 10px'>
+	      	<th style='text-align: center; width: 10%'>#</th>
+	        <th style='text-align: center; width: 10%'>CAMA </th>
+	        <th style='text-align: center; width: 5%'>HC - PRM</th>
+	        <th style='text-align: center; width: 5%'>PACIENTE</th>
+	        <th style='text-align: center; width: 5%'>MED.TRAT</th>
+	        <th style='text-align: center; width: 10%'>DX</th>
+	        <th style='text-align: center; width: 30%'>FEC.INGRESO</th>
+	        <th style='text-align: center; width: 20%'>DIAS</th>
+	      </tr>
+    </thead>
+    <tbody>
+        {{#each censo}}
+        <tr>
+            <td style='text-align: center'>{{num}}</td>
+            <td style='text-align: center'>{{cama}}</td>
+            <td style='text-align: center'>{{hc}}</td>
+            <td style='text-align: center'>{{paciente}}</td>
+            <td style='text-align: center'>{{med_tratante}}</td>
+            <td style='text-align: center'>{{dx}}</td>
+            <td style='text-align: center'>{{fech_ingreso}}</td>
+            <td style='text-align: center'>{{dias}}</td>
+        </tr>
+        {{/each}}
+    </tbody>
