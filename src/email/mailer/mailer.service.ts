@@ -23,6 +23,7 @@ export class MailerService {
     templateEmailVersion: string,
     templateBaseVersion: string,
   ) {
+    this.logger.debug(`Parsing template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
     const baseTemplatePath = path.resolve(
       __dirname,
       '../templates',
@@ -35,7 +36,7 @@ export class MailerService {
         message: `Base template v${templateBaseVersion} not found`,
       });
     }
-    this.logger.debug(`Parsing template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
+    this.logger.debug(`Found Base Template Path: ${baseTemplatePath}`);
 
     const templatePath = path.resolve(
       __dirname,
@@ -49,17 +50,21 @@ export class MailerService {
         message: `Template ${templateEmail} v${templateEmailVersion} not found`,
       });
     }
-    this.logger.debug(`Parsing template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
+    this.logger.debug(`Found Template Path: ${templatePath}`);
+    
     const baseTemplateContent = fs.readFileSync(baseTemplatePath, 'utf-8');
     const templateEmailContent = fs.readFileSync(templatePath, 'utf-8');
     const anioActual = new Date().getFullYear().toString();
     const htmlTemplate = baseTemplateContent
       .replace('{{body}}', templateEmailContent)
       .replace('{{current_year}}', anioActual);
+    
+    this.logger.debug(`Parsed HTML for template ${templateEmail} version ${templateEmailVersion} with base version ${templateBaseVersion}`);
     return htmlTemplate;
   }
 
   templateDataParcer(data: object) {
+    this.logger.debug(`Parsing template data: ${JSON.stringify(data)}`);
     const datas = Object.keys(data).map(key => ({
       name: key,
       content: data[key] as string,
@@ -69,6 +74,7 @@ export class MailerService {
   }
 
   templateSubjectParcer(template: string) {
+    this.logger.debug(`Parsing subject for template ${template}`);
     const subjectMap: { [key: string]: string } = {
       'HSM-TE-HIS-FRM-RECETAS': 'Recetas Medicas',
       'HSM-TE-HIS-CERTIFICADOS': 'Certificados de Pacientes',

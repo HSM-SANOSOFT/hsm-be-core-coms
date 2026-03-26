@@ -31,17 +31,17 @@ export class EmailService {
       templateVersion,
       templateBaseVersion,
     );
-    this.logger.debug(`Parsed HTML for template ${templateName} version ${templateVersion} with base version ${templateBaseVersion}`);
+    this.logger.debug(`Parsed HTML`);
 
     const subject = this.mailer.templateSubjectParcer(templateName);
-    this.logger.debug(`Parsed subject for template ${templateName}: ${subject}`);
+    this.logger.debug(`Parsed subject}`);
 
     const data2Parce = {
       ...templateData,
       titulo: subject,
     };
     const data = this.mailer.templateDataParcer(data2Parce);
-    this.logger.debug(`Parsed template data for template ${templateName}: ${JSON.stringify(data)}`);
+    this.logger.debug(`Parsed data`);
 
     const attachments: Mailchimp.MessageAttachment[] =
       this.mailer.templateAttachmentsParcer(files);
@@ -60,6 +60,7 @@ export class EmailService {
       merge_language: 'handlebars',
       ...(attachments.length > 0 && { attachments: attachments }),
     };
+    this.logger.debug(`Sending email to ${email} with message: ${JSON.stringify(message)}`);
     try {
       const response = await this.emailer.messages.send({ message: message });
       if (!Array.isArray(response) || !response[0] || !response[0]._id) {
@@ -69,6 +70,7 @@ export class EmailService {
           message: JSON.stringify(response),
         });
       }
+      this.logger.debug(`Email sent to ${email} with template ${templateName}`);
       await this.databaseRepository.mailRecordsRepository.emailRecord(
         response[0],
         message,
@@ -76,6 +78,7 @@ export class EmailService {
         templateVersion,
         templateBaseVersion,
       );
+      this.logger.debug(`Email record saved for ${email} with template ${templateName}`);
       this.logger.log(`Email sent to ${email} with template ${templateName}`);
       return response;
     } catch (error) {
