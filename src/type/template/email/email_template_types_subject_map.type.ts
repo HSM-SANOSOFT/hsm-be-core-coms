@@ -34,4 +34,5 @@ export const EmailTemplateTypesSubjectMap = {
     'Pin de seguridad registro de ingreso al SANOSOFT',
   [EmailTemplateType.pin_result]: 'Pin de seguridad para visualizar resultados',
   [EmailTemplateType.has_med_censo]: 'Censo Diario',
+  [EmailTemplateType.plantilla_blanco]: 'Notificación del Hospital Santamaria'
 };

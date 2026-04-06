@@ -102,7 +102,8 @@ export class MailerService {
       'HSM-TE-GAA-MKT-COTIZACION': 'Recordatorio de Cotización',
       'HSM-TE-HIS-MED-PROGRAMACION': 'Programación de Cirugias',
       'HSM-TE-HIS-DICOM-IMG': 'Resultados DICOM',
-      'HSM-TE-HAS-MED-CENSO': 'Censo Diario'
+      'HSM-TE-HAS-MED-CENSO': 'Censo Diario',
+      'HSM-PLANTILLA-BLANCO': 'Notificación del Hospital Santamaria'
     };
 
     if (!subjectMap[template]) {
