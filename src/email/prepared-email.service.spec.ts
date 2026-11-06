@@ -34,4 +34,23 @@ describe('prepared email transport', () => {
     send.mockResolvedValue([{ _id: 'receipt-1', email: data.email, status: 'rejected' }]);
     expect((await service.send(data, []))[0].status).toBe('rejected');
   });
+  it('sends real hidden recipients and audits receipts with isolated resend targets', async () => {
+    send.mockResolvedValue([{ _id: 'one', email: data.email, status: 'sent' }, { _id: 'two', email: 'hidden@example.org', status: 'rejected' }]);
+    const result = await service.send({ ...data, bcc: ['hidden@example.org'] }, []);
+    expect(send.mock.calls[0][0].message.to).toEqual([{ email: data.email, type: 'to' }, { email: 'hidden@example.org', type: 'bcc' }]);
+    expect(result[1].status).toBe('rejected');
+    expect(record).toHaveBeenCalledTimes(2);
+    expect(record.mock.calls[0][1].to).toEqual([{ email: data.email, type: 'to' }]);
+    expect(record.mock.calls[1][1].to).toEqual([{ email: 'hidden@example.org', type: 'bcc' }]);
+  });
+  it.each([['invalid'], ['TEST@example.org'], ['hidden@example.org', 'HIDDEN@example.org'], Array(51).fill('a@example.org'), 'hidden@example.org'].map(bcc => [bcc]))('rejects invalid or duplicate hidden recipients before sending: %p', async bcc => {
+    await expect(service.send({ ...data, bcc }, [])).rejects.toBeDefined();
+    expect(send).not.toHaveBeenCalled();
+  });
+  it('never retries an incomplete provider receipt', async () => {
+    await expect(service.send({ ...data, bcc: ['hidden@example.org'] }, [])).rejects.toBeDefined();
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(record).toHaveBeenCalledTimes(1);
+    expect(record.mock.calls[0][0]._id).toBe('receipt-1');
+  });
 });
