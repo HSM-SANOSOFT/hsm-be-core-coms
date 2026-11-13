@@ -5,6 +5,11 @@ import { DatabaseRepository } from '../database/database.repository';
 import { validatePreparedEmail } from './dto/prepared-email';
 import { MailerService } from './mailer/mailer.service';
 
+/** Sender display name depends only on tipo_correo ("R"/"r" = Sanosoft); the address stays fixed. */
+export function resolveFromName(tipoCorreo?: string | null): string {
+  return tipoCorreo?.trim().toUpperCase() === 'R' ? 'Sanosoft' : 'Hospital Santamaria';
+}
+
 @Injectable()
 export class PreparedEmailService {
   constructor(
@@ -19,7 +24,8 @@ export class PreparedEmailService {
     catch { throw new RpcException({ statusCode: HttpStatus.BAD_REQUEST, message: 'Invalid prepared email' }); }
     const attachments = this.mailer.templateAttachmentsParcer(files);
     const message: Mailchimp.MessagesMessage = {
-      from_name: 'Hospital Santamaria',
+      // Resolved name travels inside the MAIL_RECORDS message, so resends keep it.
+      from_name: resolveFromName(data.tipo_correo),
       from_email: 'noreply@hospitalsm.org',
       to: [{ email: data.email, type: 'to' }, ...(data.bcc ?? []).map(email => ({ email, type: 'bcc' as const }))],
       preserve_recipients: false,
