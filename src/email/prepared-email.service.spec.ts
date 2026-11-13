@@ -47,6 +47,32 @@ describe('prepared email transport', () => {
     await expect(service.send({ ...data, bcc }, [])).rejects.toBeDefined();
     expect(send).not.toHaveBeenCalled();
   });
+  it.each([
+    ['R', 'Sanosoft'],
+    ['r', 'Sanosoft'],
+    [null, 'Hospital Santamaria'],
+    ['', 'Hospital Santamaria'],
+    [undefined, 'Hospital Santamaria'],
+    ['N', 'Hospital Santamaria'],
+  ])('resolves tipo_correo %p to sender name %p with fixed address and audits it for resends', async (tipo_correo, fromName) => {
+    const input = tipo_correo === undefined ? { ...data } : { ...data, tipo_correo };
+    if (tipo_correo === undefined) expect('tipo_correo' in input).toBe(false);
+    await service.send(input, []);
+    const message = send.mock.calls[0][0].message;
+    expect(message.from_name).toBe(fromName);
+    expect(message.from_email).toBe('noreply@hospitalsm.org');
+    expect(record.mock.calls[0][1].from_name).toBe(fromName);
+    expect(record.mock.calls[0][1].from_email).toBe('noreply@hospitalsm.org');
+  });
+  it('does not depend on the template number', async () => {
+    await service.send({ ...data, model: 1, tipo_correo: 'R' }, []);
+    await service.send({ ...data, model: 99, tipo_correo: null }, []);
+    expect(send.mock.calls.map(call => call[0].message.from_name)).toEqual(['Sanosoft', 'Hospital Santamaria']);
+  });
+  it.each([[1], [true], [{}], [['R']], ['x'.repeat(21)], ['R\r\n']])('rejects invalid tipo_correo %p before sending', async tipo_correo => {
+    await expect(service.send({ ...data, tipo_correo }, [])).rejects.toBeDefined();
+    expect(send).not.toHaveBeenCalled();
+  });
   it('never retries an incomplete provider receipt', async () => {
     await expect(service.send({ ...data, bcc: ['hidden@example.org'] }, [])).rejects.toBeDefined();
     expect(send).toHaveBeenCalledTimes(1);
